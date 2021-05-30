@@ -1,0 +1,133 @@
+---
+title: "Project on Statistical Inference Course"
+output: html_document
+---
+
+##Answers
+
+Question one <- The sample mean is 4.993 while the theoretical mean is 5. The center of distribution in averages of 40 exponentials is very close to the theoretical center of the distribution.
+Question two <- Standard Deviation of the distribution is 0.7931608 with the theoretical SD calculated as 0.7905694. The Theoretical variance is calculated as ((1 / ??) * (1/???n))<sup>2</sup> = 0.625. The actual variance of the distribution is 0.6291041
+Question three <-Due to Due to the central limit theorem (CLT), the distribution of averages of 40 exponentials is very close to a normal distribution.
+
+```{r DataLoading}
+library("data.table")
+library("ggplot2")
+```
+
+
+```{r}
+set.seed(31)
+# our samples
+n <- 40
+#setting lambda
+lambda <- 0.2
+# simulations
+simulations <- 1000
+# simulation
+simulated_exponentials <- replicate(simulations, rexp(n, lambda))
+# calculate mean of exponentials
+means_exponentials <- apply(simulated_exponentials, 2, mean)
+```
+
+
+```{r}
+analytical_mean <- mean(means_exponentials)
+analytical_mean
+```
+
+```{r}
+# analytical mean
+theory_mean <- 1/lambda
+theory_mean
+```
+
+```{r}
+# visualization
+hist(means_exponentials, xlab = "the mean", main = "Simulations of functions")
+abline(v = analytical_mean, col = "blue")
+abline(v = theory_mean, col = "red")
+```
+
+## Question 2
+
+```{r}
+# standard deviation of distribution
+standard_deviation_dist <- sd(means_exponentials)
+standard_deviation_dist
+```
+
+```{r}
+# standard deviation from analytical expression
+standard_deviation_theory <- (1/lambda)/sqrt(n)
+standard_deviation_theory
+```
+
+```{r}
+# variance of distribution
+variance_dist <- standard_deviation_dist^2
+variance_dist
+```
+
+```{r}
+# variance from analytical expression
+variance_theory <- ((1/lambda)*(1/sqrt(n)))^2
+variance_theory
+```
+
+## Question 3
+
+```{r}
+xfit <- seq(min(means_exponentials), max(means_exponentials), length=100)
+yfit <- dnorm(xfit, mean=1/lambda, sd=(1/lambda/sqrt(n)))
+hist(means_exponentials,breaks=n,prob=T,col="orange",xlab = "means",main="Density of means",ylab="density")
+lines(xfit, yfit, pch=22, col="black", lty=5)
+```
+
+```{r}
+# compare the distribution of averages of 40 exponentials to a normal distribution
+qqnorm(means_exponentials)
+qqline(means_exponentials, col = 2)
+```
+
+
+## Part 2
+
+
+```{r}
+data("ToothGrowth")
+summary(ToothGrowth)
+```
+
+```{r}
+table(ToothGrowth)
+```
+
+
+```{r}
+vitaminC <- subset(ToothGrowth, supp == 'VC')
+orangeJ <- subset(ToothGrowth, supp == 'OJ')
+t.test(vitaminC$len, orangeJ$len, paired = FALSE, var.equal = FALSE)
+dose05 <- ToothGrowth$len[ToothGrowth$dose == 0.5]
+dose1 <- ToothGrowth$len[ToothGrowth$dose == 1.0]
+dose2 <- ToothGrowth$len[ToothGrowth$dose == 2.0]
+t.test(dose05, dose1 )
+t.test(dose05, dose2)
+t.test(dose1, dose2)
+```
+   
+```{r}
+dose05VC <- vitaminC$len[vitaminC$dose == 0.5]
+dose1VC <- vitaminC$len[vitaminC$dose == 1.0]
+dose2VC <- vitaminC$len[vitaminC$dose == 2.0]
+dose05OJ <- orangeJ$len[orangeJ$dose == 0.5]
+dose1OJ <- orangeJ$len[orangeJ$dose == 1.0]
+dose2OJ <- orangeJ$len[orangeJ$dose == 2.0]
+```
+```{r}
+t.test(dose05VC, dose05OJ)
+t.test(dose1VC, dose1OJ)
+t.test(dose2VC, dose2OJ)
+```
+   
+#Conclusions:
+Supplement type alone does not affect the mean value of length of odontoblasts. Dose level alone, without consideraton of supplement type affects tooth growth significantly. Increasing the dosage will induce better tooth growth. Orange Juice as a supplement, when used in dose levels of 0.5 mg/day and 1mg/day promotes better tooth growth than ascorbic acid. When applied in dose level of 2 mg/day, it has an effect on tooth growth similar to that of an ascorbic acid.
